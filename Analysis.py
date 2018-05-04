@@ -6,10 +6,11 @@ from nltk.probability import FreqDist, ConditionalFreqDist
 from nltk.classify.scikitlearn import SklearnClassifier
 from nltk.collocations import BigramCollocationFinder
 from nltk.metrics import BigramAssocMeasures
-from sklearn .svm import SVC, LinearSVC, NuSVC
-from sklearn .naive_bayes import MultinomialNB, BernoulliNB
-from sklearn .linear_model import LogisticRegression
-from sklearn .metrics import accuracy_score
+
+
+
+from sklearn.model_selection import train_test_split
+
 
 
 # 把所有词当作特征
@@ -71,9 +72,9 @@ def create_word_bigram_scores():
     negWords = list(itertools.chain(*negdata))
 
     bigram_finder = BigramCollocationFinder.from_words(posWords)
-    posBigrams = bigram_finder.nbest(BigramAssocMeasures.chi_sq, 5000)
+    posBigrams = bigram_finder.nbest(BigramAssocMeasures.chi_sq, 10000)
     bigram_finder = BigramCollocationFinder.from_words(negWords)
-    negBigrams = bigram_finder.nbest(BigramAssocMeasures.chi_sq, 5000)
+    negBigrams = bigram_finder.nbest(BigramAssocMeasures.chi_sq, 10000)
 
     pos = posWords + posBigrams  # 词和双词搭配
     neg = negWords + negBigrams
@@ -116,13 +117,14 @@ neg_review = []  # 消极数据
 # 分割数据及赋予类标签
     # 载入数据
 def load_data():
-    global pos_review, neg_review
+    global pos_review, neg_review, review
     pos_review = pickle.load(open('pos_review.pkl', 'rb'))
     neg_review = pickle.load(open('neg_review.pkl', 'rb'))
 
-    # 使积极文本的数量和消极文本的数量一样 (跳过)
     # 赋予类标签
         # 积极
+
+
 def pos_features(feature_extraction_method, best_words):
     posFeatures = []
     for i in pos_review:
@@ -130,7 +132,10 @@ def pos_features(feature_extraction_method, best_words):
         posFeatures.append(posWords)
     return posFeatures
 
+
         # 消极
+
+
 def neg_features(feature_extraction_method, best_words):
     negFeatures = []
     for j in neg_review:
@@ -138,121 +143,17 @@ def neg_features(feature_extraction_method, best_words):
         negFeatures.append(negWords)
     return negFeatures
 
-train = []  # 训练集
-devtest = []  # 开发测试集
-test = []  # 测试集
-dev = []  #
-tag_dev = []
 
     # 把特征化之后的数据数据分割为开发集和测试集
+
 def cut_data(posFeatures, negFeatures):
-    global train, devtest, test
-    train = posFeatures[174:] + negFeatures[174:]
-    devtest = posFeatures[124:174] + negFeatures[124:174]
-    test = posFeatures[:124] + negFeatures[:124]
+    pos_train, pos_test = train_test_split(posFeatures, test_size=0.2, random_state=25)
+    neg_train, neg_test = train_test_split(negFeatures, test_size=0.2, random_state=25)
+    train = pos_train + neg_train
+    test = pos_test + neg_test
+    return train, test
 
-# 训练
-    # 开发测试集分割人工标注的标签和数据
-def cut_devtest():
-    global dev, tag_dev
-    dev, tag_dev = zip(*devtest)
 
-    # 使用训练集训练分类器
-    # 用分类器对开发测试集里面的数据进行分类，给出分类预测的标签
-    # 对比分类标签和人工标注的差异，计算出准确度
-def score(classifier):
-    classifier = nltk.SklearnClassifier(classifier)  # 在nltk 中使用scikit-learn的接口
-    classifier.train(train)  #训练分类器
 
-    pred = classifier.classify_many(dev)  # 对开发测试集的数据进行分类，给出预测的标签
-    return accuracy_score(tag_dev, pred)  # 对比分类预测结果和人工标注的正确结果，给出分类器准确度
 
-    # 检验不同分类器和不同的特征选择的结果
-def compare_test():
-    global posFeatures, negFeatures
-    global pos_review, neg_review
 
-    word_scores_1 = create_word_scores()
-    word_scores_2 = create_word_bigram_scores()
-    best_words_1 = find_best_words(word_scores_1, 1500)
-    best_words_2 = find_best_words(word_scores_2, 1500)
-    load_data()
-    posFeatures = pos_features(best_word_features, best_words_1)  # 使用所有词作为特征
-    negFeatures = neg_features(best_word_features, best_words_1)
-    cut_data(posFeatures, negFeatures)
-    cut_devtest()
-    # posFeatures = pos_features(bigram)
-    # negFeatures = neg_features(bigram)
-
-    # posFeatures = pos_features(bigram_words)
-    # negFeatures = neg_features(bigram_words)
-
-    print('BernoulliNB`s accuracy is %f' % score(BernoulliNB()))
-    print('MultinomiaNB`s accuracy is %f' % score(MultinomialNB()))
-    print('LogisticRegression`s accuracy is %f' % score(LogisticRegression()))
-    print('SVC`s accuracy is %f' % score(SVC()))
-    print('LinearSVC`s accuracy is %f' % score(LinearSVC()))
-    print('NuSVC`s accuracy is %f' % score(NuSVC()))
-
-# 测试
-    # 使用测试集测试分类器的最终效果
-def use_the_best():
-    word_scores = create_word_bigram_scores()  # 使用词和双词搭配作为特征
-    best_words = find_best_words(word_scores, 1500)  # 特征维度1500
-    load_data()
-    posFeatures = pos_features(best_word_features, best_words)
-    negFeatures = neg_features(best_word_features, best_words)
-    cut_data(posFeatures, negFeatures)
-    trainSet = posFeatures[:500] + negFeatures[:500]  # 使用了更多数据
-    testSet = posFeatures[500:] + negFeatures[500:]
-    test, tag_test = zip(*testSet)
-
-    # 存储分类器
-    def final_score(classifier):
-        classifier = SklearnClassifier(classifier)
-        classifier.train(trainSet)
-        pred = classifier.classify_many(test)
-        return accuracy_score(tag_test, pred)
-
-    print('The best classifier`s accuracy is %f' % final_score(MultinomialNB()))  #使用开发集中得出的最佳分类器
-
-    # 把分类器存储下来（存储分类器和前面没有区别，只是使用了更多的训练数据以便分类器更为准确）
-def store_classifier():
-    word_scores = create_word_bigram_scores()
-    best_words = find_best_words(word_scores, 1500)
-
-    posFeatures = pos_features(best_word_features)
-    negFeatures = neg_features(best_word_features)
-
-    trainSet = posFeatures + negFeatures
-
-    BernoulliNB_classifier = SklearnClassifier(BernoulliNB())
-    BernoulliNB_classifier.train(trainSet)
-    pickle.dump(BernoulliNB_classifier, open('classifier.pkl', 'wb'))
-
-# 使用分类器分类，给出概率值
-    # 把文本变成特征表示
-def transfer_text_to_moto():
-    moto = pickle.load(open('moto_senti_seg.pkl', 'rb'))  # 载入文本数据
-
-    def extract_features(data):
-        feat = []
-        for i in data:
-            feat.append(best_word_features(i))
-        return feat
-
-    moto_features = extract_features(moto)  # 把文本转化为特征表示的形式
-    return moto_features
-
-    # 对文本进行分类，给出概率值
-def application():
-    clf = pickle.load(open('classifier.pkl', 'rb'))  # 载入分类器
-
-    pred = clf.batch_prob_classify(transfer_text_to_moto())  # 该方法是计算分类概率值的
-    p_file = open('moto_ml_socre.txt', 'w')  # 把结果写入文档
-    for i in pred:
-        p_file.write(str(i.prob('pos')) + ' ' + str(i.prob('neg')) + '\n')
-    p_file.close()
-
-if __name__ == '__main__':
-    use_the_best()
