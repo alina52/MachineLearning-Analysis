@@ -87,7 +87,7 @@ def confustion_matrix(test_target, pred):
 
 def evaluate(test_target, pred):
     targets = list(set(test_target))
-    precision, recall, f, support = precision_recall_fscore_support(test_target, pred, labels=targets, average="weighted")
+    precision, recall, f, support = precision_recall_fscore_support(test_target, pred, labels=targets, average="binary")
     print("Precsion is %f" % precision + "\n" + "Recall is %f" % recall + "\n" + "f-score is %f" % f)
     confustion_matrix(test_target, pred)
 
