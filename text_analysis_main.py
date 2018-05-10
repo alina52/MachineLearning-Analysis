@@ -1,9 +1,9 @@
-'''
-Created on 2018-04-28
-
-@author: Administrator
-'''
-
+# python3
+# -*- coding: utf-8 -*-
+# @Time      04/05/2018 10:53
+# @Author    Alina Wang
+# @Email     recall52@163.com
+# @Software: PyCharm
 import os
 from dictionary.dict_utils import load_dict_by_type
 #from dictionary.dict_utils import load_extreme_dict
@@ -46,7 +46,7 @@ def __fill_with_word_info__(word, k, s, p = None):
 
 def __getScore__(dict, word):
     return dict.get(word, 0)
-            
+
 def __get_word_detail_info__(word, word_kind):
     word_info = {};
     if word in deny_word_set:
@@ -65,7 +65,7 @@ def __get_word_detail_info__(word, word_kind):
                 word_info = __fill_with_word_info__(word, word_kind, score)
     else:
         word_info = __fill_with_word_info__(word, word_kind, 0)
-        
+
     return word_info
 
 def __caculate_score_of_simple_sentence__(stack = [], ExtInNoAndSen = False):
@@ -73,7 +73,7 @@ def __caculate_score_of_simple_sentence__(stack = [], ExtInNoAndSen = False):
         return reduce(lambda item1, item2: item1 * item2, stack) * -0.5
     else:
         return reduce(lambda item1, item2: item1 * item2, stack)
-    
+
 def get_simple_sentence_score(word_list=[{}]):
     if len(word_list) > 0:
         stack = []
@@ -117,31 +117,29 @@ def __caculate_text_score__(text_doc):
         for word, kind in jieba_word_list:
             word_info = __get_word_detail_info__(word, kind)
             word_info_list.append(word_info)
-            
+
         score, stack = get_simple_sentence_score(word_info_list)
         _score_sum_ += score
     return _score_sum_
 
-    
-if __name__ == '__main__':
-    if(sys.argv.__len__()>1):
+
+def countResult():
+    if sys.argv.__len__()>1:
         dict_type = int(sys.argv[1])
     else:
         dict_type = 1
 
     __init_dict__(dict_type)
-    
+
     os.chdir(sys.path[0]);
-    neg_path = os.path.abspath('neg/')
-    pos_path = os.path.abspath('pos/')
-
-    
-
-    
+    neg_path = os.path.abspath('testData/neg/')
+    pos_path = os.path.abspath('testData/pos/')
+    processed_pos_file_count = 0
+    neg_score_for_pos_input_count = 0
+    processed_neg_file_count = 0
+    pos_score_for_neg_input_count = 0
 
     for dirs, sub_dirs, files in os.walk(neg_path):
-        processed_neg_file_count = 0
-        pos_score_for_neg_input_count = 0
         for file in files:
             if file.endswith('_utf8'):
                 file_path = os.path.join(neg_path, file)
@@ -150,11 +148,8 @@ if __name__ == '__main__':
                 processed_neg_file_count += 1
                 if(score>0):
                     pos_score_for_neg_input_count += 1
-#                    print('score > 0 for neg text in file: '+ file)
 
     for dirs, sub_dirs, files in os.walk(pos_path):
-        processed_pos_file_count = 0
-        neg_score_for_pos_input_count = 0
         for file in files:
             if file.endswith('_utf8'):
                 file_path = os.path.join(pos_path, file)
@@ -163,10 +158,11 @@ if __name__ == '__main__':
                 processed_pos_file_count += 1
                 if(score<0):
                     neg_score_for_pos_input_count += 1
-#                    print('score < 0 for pos text in file: '+ file)
+    return processed_pos_file_count, processed_neg_file_count, neg_score_for_pos_input_count, pos_score_for_neg_input_count
 
     print('===========================================================================')
     print('prcessed '+ str(processed_pos_file_count) +' pos files, got '+str(neg_score_for_pos_input_count)+' files has neg score')
     print('prcessed '+ str(processed_neg_file_count) +' neg files, got '+str(pos_score_for_neg_input_count)+' files has pos score')
 
-
+# if __name__ == '__main__':
+#     countResult()
