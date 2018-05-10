@@ -9,8 +9,8 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import itertools
-from Analysis import create_word_bigram_scores, find_best_words, load_data, best_word_features, pos_features, \
-    neg_features, cut_data
+from Analysis import create_word_bigram_scores, find_best_words, load_data, best_word_features, pos_features, neg_features, cut_data
+from text_analysis_main import countResult
 from sklearn.svm import SVC, LinearSVC, NuSVC
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn.linear_model import LogisticRegression
@@ -26,6 +26,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import recall_score
 from sklearn.metrics import precision_recall_fscore_support
+# from __future__ import division
 
 
 # 检验不同分类器和不同的特征选择的结果
@@ -85,13 +86,25 @@ def confustion_matrix(test_target, pred):
 # def recall(test_target, pred):
 #     print('recall is %.2f' % recall_score(test_target, pred, pos_label='pos', average = 'weighted', sample_weight=None))
 
-def evaluate(test_target, pred):
+def machine_learning_evaluate(test_target, pred):
     targets = list(set(test_target))
-    precision, recall, f, support = precision_recall_fscore_support(test_target, pred, labels=targets, average="weighted")
-    print("Precsion is %f" % precision + "\n" + "Recall is %f" % recall + "\n" + "f-score is %f" % f)
+    precision, recall, f, support = precision_recall_fscore_support(test_target, pred, average="binary")
+    print("Machine Learning`s Precsion is %f" % precision + "\n" + "Recall is %f" % recall + "\n" + "f-score is %f" % f)
     confustion_matrix(test_target, pred)
 
-def compare_classifier():
+def dictionary_evaluate(tp, tn, fp, fn):
+    tp_list = [1] * tp
+    fp_list = [0] * fp
+    tn_list = [0] * tn
+    fn_list = [1] * fn
+
+    test_target = [1] * (tp + fp) + [0] * (tn + fn)
+    pred = tp_list + fp_list + tn_list + fn_list
+    precision, recall, f, support = precision_recall_fscore_support(test_target, pred, average="binary")
+    print("Based on dictionary precision is %f" % precision + "\n" + "Recall is %f" % recall + "\n" + "f-score is %f" % f)
+    confustion_matrix(test_target, pred)
+
+def compare_machine_learning_classifier():
     # word_scores_1 = create_word_scores()
     word_scores_2 = create_word_bigram_scores()
     # best_words_1 = find_best_words(word_scores_1, 1400)
@@ -101,7 +114,7 @@ def compare_classifier():
     negFeatures = neg_features(best_word_features, best_words_2)
     train, test = cut_data(posFeatures, negFeatures)
     test_target, pred = predict(MultinomialNB(), train, test)
-    evaluate(test_target, pred)
+    machine_learning_evaluate(test_target, pred)
     # print('MultinomiaNB`s accuracy is %f' % score(MultinomialNB(), train, test, test_target))
     # print('LogisticRegression`s accuracy is %f' % score(LogisticRegression(), train, test, test_target))
     # print('SVC`s accuracy is %f' % score(SVC(), train, test, test_target))
@@ -112,6 +125,18 @@ def compare_classifier():
     # print('GradientBoostingClassifier(n_estimators = 1000)`s accuracy is %f' %score(GradientBoostingClassifier(n_estimators = 1000),train,test,test_target))
     # print('GradientBoostingClassifier`s accuracy is %f' % score(GradientBoostingClassifier(), train, test, test_target))
     # print('RandomForestClassifier`s accuracy is %f' % score(RandomForestClassifier(), train, test, test_target))
+
+def compare_dictionary_classifier():
+    processed_pos_file_count, processed_neg_file_count, neg_score_for_pos_input_count, pos_score_for_neg_input_count = countResult()
+    tp = processed_pos_file_count - neg_score_for_pos_input_count
+    tn = processed_neg_file_count - pos_score_for_neg_input_count
+    fp = neg_score_for_pos_input_count
+    fn = pos_score_for_neg_input_count
+
+    dictionary_evaluate(tp, tn, fp, fn)
+
+
+
 
 
 # def store_classifier():
@@ -152,4 +177,5 @@ def compare_classifier():
 #     p_file.close()
 
 if __name__ == '__main__':
-    compare_classifier()
+    # compare_machine_learning_classifier()
+    compare_dictionary_classifier()
