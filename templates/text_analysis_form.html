@@ -6,9 +6,9 @@
 <body>
     <form action="/text_analysis" method="post">
     	{% csrf_token %}
-        <input type="text" name="text">
-        <input type="text" name="dict_type">
-        <input type="submit" value="搜索">
+        文本： <input type="text" name="text">
+        字典类型（数字）： <input type="text" name="dict_type">
+        <input type="submit" value="计算">
     </form>
 </body>
 </html>
