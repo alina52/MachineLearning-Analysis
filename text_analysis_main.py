@@ -57,7 +57,9 @@ def __get_word_detail_info__(word, word_kind):
             word_info = __fill_with_word_info__(word, word_kind, score, None)
         else:
             score = __getScore__(word_dict, word)
-            if score >0:
+            if type(score) == str:
+                score = float(score)
+            if score > 0:
                 word_info = __fill_with_word_info__(word, word_kind, score, 'pos')
             elif score < 0:
                 word_info = __fill_with_word_info__(word, word_kind, score, 'neg')
@@ -127,7 +129,7 @@ def countResult():
     if sys.argv.__len__()>1:
         dict_type = int(sys.argv[1])
     else:
-        dict_type = 1
+        dict_type = 4;
 
     __init_dict__(dict_type)
 
