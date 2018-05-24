@@ -9,7 +9,7 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import itertools
-from Analysis import create_word_bigram_scores, find_best_words, load_data, best_word_features, pos_features, neg_features, cut_data
+from Analysis import create_word_scores, create_bigram_scores, create_word_bigram_scores, find_best_words, load_data, best_word_features, pos_features, neg_features, cut_data
 from text_analysis_main import countResult
 from sklearn.svm import SVC, LinearSVC, NuSVC
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
@@ -23,11 +23,11 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
 
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, precision_recall_curve
 from sklearn.metrics import recall_score
 from sklearn.metrics import precision_recall_fscore_support
-# from __future__ import division
-
+import sys
+sys.setrecursionlimit(2000)
 
 # 检验不同分类器和不同的特征选择的结果
 # 使用训练集训练分类器
@@ -54,11 +54,8 @@ def predict(classifier, train, test):
     # return accuracy_score(test_target, pred)  # 对比分类预测结果和人工标注的正确结果，给出分类器准确度
     return test_target, pred
 
-    # 把分类器存储下来（存储分类器和前面没有区别，只是使用了更多的训练数据以便分类器更为准确）
-
-
 def accuracy(test_target, pred):
-    print('Accuracy is %.2f' % accuracy_score(test_target, pred))  # 对比分类预测结果和人工标注的正确结果，给出分类器准确度
+    print('Accuracy is %.3f' % accuracy_score(test_target, pred))  # 对比分类预测结果和人工标注的正确结果，给出分类器准确度
 
 
 def confustion_matrix(test_target, pred):
@@ -74,7 +71,7 @@ def confustion_matrix(test_target, pred):
     tick_marks = np.arange(len(targets))
     plt.xticks(tick_marks, targets, rotation=45)
     plt.yticks(tick_marks, targets)
-    fmt = '.2f'
+    fmt = '.3f'
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
         plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center", color="white" if cm[i, j] > thresh else "black")
@@ -83,14 +80,26 @@ def confustion_matrix(test_target, pred):
     plt.xlabel('Predicted label')
     plt.show()
 
-# def recall(test_target, pred):
-#     print('recall is %.2f' % recall_score(test_target, pred, pos_label='pos', average = 'weighted', sample_weight=None))
+def precision_recall_curve(test_target, pred):
+    precision, recall, th = precision_recall_curve(test_target, pred)
+    plt.step(recall, precision, color='b', alpha=0.2,
+             where='post')
+    plt.fill_between(recall, precision, step='post', alpha=0.2,
+                     color='b')
+
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.ylim([0.0, 1.0])
+    plt.xlim([0.0, 1.0])
+    plt.title('2-class Precision-Recall curve')
+    plt.show()
 
 def machine_learning_evaluate(test_target, pred):
     targets = list(set(test_target))
     precision, recall, f, support = precision_recall_fscore_support(test_target, pred, average="binary")
-    print("Machine Learning`s Precsion is %f" % precision + "\n" + "Recall is %f" % recall + "\n" + "f-score is %f" % f)
+    print("Machine Learning`s Precsion is %.3f" % precision + "\n" + "Recall is %.3f" % recall + "\n" + "f-score is %.3f" % f)
     confustion_matrix(test_target, pred)
+    # precision_recall_curve(test_target,pred)
 
 def dictionary_evaluate(tp, tn, fp, fn):
     tp_list = [1] * tp
@@ -101,30 +110,34 @@ def dictionary_evaluate(tp, tn, fp, fn):
     test_target = [1] * (tp + fp) + [0] * (tn + fn)
     pred = tp_list + fp_list + tn_list + fn_list
     precision, recall, f, support = precision_recall_fscore_support(test_target, pred, average="binary")
-    print("Based on dictionary precision is %f" % precision + "\n" + "Recall is %f" % recall + "\n" + "f-score is %f" % f)
+    print("Based on dictionary precision is %f3" % precision + "\n" + "Recall is %3f" % recall + "\n" + "f-score is %3f" % f)
     confustion_matrix(test_target, pred)
 
 def compare_machine_learning_classifier():
     # word_scores_1 = create_word_scores()
-    word_scores_2 = create_word_bigram_scores()
-    # best_words_1 = find_best_words(word_scores_1, 1400)
-    best_words_2 = find_best_words(word_scores_2, 1400)
-    load_data()
-    posFeatures = pos_features(best_word_features, best_words_2)  # 使用词和双词搭配作为特征
-    negFeatures = neg_features(best_word_features, best_words_2)
-    train, test = cut_data(posFeatures, negFeatures)
-    test_target, pred = predict(MultinomialNB(), train, test)
-    machine_learning_evaluate(test_target, pred)
-    # print('MultinomiaNB`s accuracy is %f' % score(MultinomialNB(), train, test, test_target))
-    # print('LogisticRegression`s accuracy is %f' % score(LogisticRegression(), train, test, test_target))
-    # print('SVC`s accuracy is %f' % score(SVC(), train, test, test_target))
-    # print('LinearSVC`s accuracy is %f' % score(LinearSVC(), train, test, test_target))
-    # print('NuSVC`s accuracy is %f' % score(NuSVC(), train, test, test_target))
-    # print('GradientBoostingClassifier`s accuracy is %f' % score(GradientBoostingClassifier(), train, test, test_target))
-    # print('DecisionTreeClassifier`s accuracy is %f' % score(tree.DecisionTreeClassifier(), train, test, test_target))
-    # print('GradientBoostingClassifier(n_estimators = 1000)`s accuracy is %f' %score(GradientBoostingClassifier(n_estimators = 1000),train,test,test_target))
-    # print('GradientBoostingClassifier`s accuracy is %f' % score(GradientBoostingClassifier(), train, test, test_target))
-    # print('RandomForestClassifier`s accuracy is %f' % score(RandomForestClassifier(), train, test, test_target))
+    word_scores_2 = create_bigram_scores()
+    # word_scores_3 = create_word_bigram_scores()
+    for k in np.arange(1000, 11000, 1000):
+        # best_words_1 = find_best_words(word_scores_1, k)
+        best_words_2 = find_best_words(word_scores_2,k)
+        # best_words_3 = find_best_words(word_scores_3, 8500)
+        load_data()
+        posFeatures = pos_features(best_word_features, best_words_2)  # 使用词和双词搭配作为特征
+        negFeatures = neg_features(best_word_features, best_words_2)
+        train, test = cut_data(posFeatures, negFeatures)
+        test_target, pred = predict(NuSVC(), train, test)
+
+        print(k)
+        accuracy(test_target, pred)
+
+    # machine_learning_evaluate(test_target, pred)
+
+        # print('BernoulliNB`s accuracy is %f' % accuracy(test_target, pred))
+        # print('MultinomialNB`s accuracy is %f' % accuracy(test_target, pred))
+        # print('LogisticRegression`s accuracy is %f' % accuracy(test_target, pred))
+        # print('SVC`s accuracy is %f' % accuracy(test_target, pred))
+        # print('LinearSVC`s accuracy is %f' % accuracy(test_target, pred))
+        # print('NuSVC`s accuracy is %f' % accuracy(test_target, pred))
 
 def compare_dictionary_classifier():
     processed_pos_file_count, processed_neg_file_count, neg_score_for_pos_input_count, pos_score_for_neg_input_count = countResult()
@@ -177,5 +190,5 @@ def compare_dictionary_classifier():
 #     p_file.close()
 
 if __name__ == '__main__':
-    # compare_machine_learning_classifier()
-    compare_dictionary_classifier()
+    compare_machine_learning_classifier()
+    # compare_dictionary_classifier()

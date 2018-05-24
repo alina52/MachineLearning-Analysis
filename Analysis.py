@@ -63,6 +63,39 @@ def create_word_scores():
     # 包括了每个词以及信息量
     return word_scores
 
+def create_bigram_scores():
+    posdata = pickle.load(open('pos_review.pkl', 'rb'))
+    negdata = pickle.load(open('neg_review.pkl', 'rb'))
+
+    posWords = list(itertools.chain(*posdata))
+    negWords = list(itertools.chain(*negdata))
+
+    bigram_finder = BigramCollocationFinder.from_words(posWords)
+    posBigrams = bigram_finder.nbest(BigramAssocMeasures.chi_sq, 10000)
+    bigram_finder = BigramCollocationFinder.from_words(negWords)
+    negBigrams = bigram_finder.nbest(BigramAssocMeasures.chi_sq, 10000)
+
+    word_fd = FreqDist()  # 可统计所有词的词频
+    cond_word_fd = ConditionalFreqDist()  # 可统计积极文本中的词频和消极文本中的词
+    for word in posBigrams:
+        word_fd[word] += 1
+        cond_word_fd["pos"][word] += 1
+    for word in negBigrams:
+        word_fd[word] += 1
+        cond_word_fd["neg"][word] += 1
+
+    pos_word_count = cond_word_fd['pos'].N()
+    neg_word_count = cond_word_fd['neg'].N()
+    total_word_count = pos_word_count + neg_word_count
+
+    word_scores = {}
+    for word, freq in word_fd.items():
+        pos_score = BigramAssocMeasures.chi_sq(cond_word_fd['pos'][word], (freq, pos_word_count), total_word_count)
+        neg_score = BigramAssocMeasures.chi_sq(cond_word_fd['neg'][word], (freq, neg_word_count), total_word_count)
+        word_scores[word] = pos_score + neg_score
+
+    return word_scores
+
     # 计算整个语料每个词和双词搭配的信息量
 def create_word_bigram_scores():
     posdata = pickle.load(open('pos_review.pkl', 'rb'))
@@ -108,7 +141,20 @@ def find_best_words(word_scores, number):
     return best_words
 
     # 把选出的词作为特征，也就是信息量丰富的特征
+# def best_word_features(words, best_words):
+#     return dict([(word, True) for word in words if word in best_words])
+
 def best_word_features(words, best_words):
+    ret = dict()
+    for word in words:
+        for bestWord in best_words:
+            if word == bestWord[0]:
+                if bestWord[1] in words:
+                    ret[bestWord] = True
+            elif word == bestWord[1]:
+                if bestWord[0] in words:
+                    ret[bestWord] = True
+    return ret
     return dict([(word, True) for word in words if word in best_words])
 
 pos_review = []  # 积极数据
