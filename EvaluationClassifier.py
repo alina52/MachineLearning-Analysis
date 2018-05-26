@@ -111,7 +111,7 @@ def dictionary_evaluate(tp, tn, fp, fn):
     pred = tp_list + fp_list + tn_list + fn_list
     precision, recall, f, support = precision_recall_fscore_support(test_target, pred, average="binary")
     print("Based on dictionary precision is %f3" % precision + "\n" + "Recall is %3f" % recall + "\n" + "f-score is %3f" % f)
-    confustion_matrix(test_target, pred)
+    # confustion_matrix(test_target, pred)
 
 def compare_machine_learning_classifier():
     # word_scores_1 = create_word_scores()
@@ -190,5 +190,5 @@ def compare_dictionary_classifier():
 #     p_file.close()
 
 if __name__ == '__main__':
-    compare_machine_learning_classifier()
-    # compare_dictionary_classifier()
+    # compare_machine_learning_classifier()
+    compare_dictionary_classifier()

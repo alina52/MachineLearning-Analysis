@@ -6,7 +6,6 @@ Created on 2018-4-28
 
 import os
 import sys
-import xlrd
 
 dict_mapping = {1: "dict_zhiwang", 2: "dict_tsinghua", 3: "dict_ntusd", 4: "dict_dalianligong", 5:"dic_extreme"}
 
@@ -27,23 +26,24 @@ def load_dict_by_type(dict_type):
 
                 dict.update(__load_words_from_file_with_given_score__(os.path.join(dict_path, file), score))
     else:
-        dict = load_dalianligong_dict()
+        dict = load_extreme_dict()
 
     return dict
-def read_xlsx_file(path, file_name):
-    book = xlrd.open_workbook(path + file_name)
-    sh = book.sheet_by_name("Sheet1")
-    list = []
-    for i in range(1, sh.nrows):
-        list.append(sh.row_values(i))
-    return list
+# def read_xlsx_file(path, file_name):
+#     book = xlrd.open_workbook(path + file_name)
+#     sh = book.sheet_by_name("Sheet1")
+#     list = []
+#     for i in range(1, sh.nrows):
+#         list.append(sh.row_values(i))
+#     return list
+#
+#
+# def load_dalianligong_dict():
+#     os.chdir(sys.path[0]);
+#     file_path = os.path.abspath('dictionary/data/dict_dalianligong/');
+#     dalianligong_dic = read_xlsx_file(file_path, "SenDic.xlsx")
+#     return dalianligong_dic;
 
-
-def load_dalianligong_dict():
-    os.chdir(sys.path[0]);
-    file_path = os.path.abspath('dictionary/data/dict_dalianligong/');
-    dalianligong_dic = read_xlsx_file(file_path, "SenDic.xlsx")
-    return dalianligong_dic;
 
 def load_extreme_dict():
     os.chdir(sys.path[0]);
