@@ -19,6 +19,7 @@ def load_dict():
     all_type_word_dict[1] = load_dict_by_type(1);
     all_type_word_dict[2] = load_dict_by_type(2);
     all_type_word_dict[3] = load_dict_by_type(3);
+    all_type_word_dict[4] = load_dict_by_type(4);
     __init_deny_word_set__();
 
 def __init_deny_word_set__():
@@ -33,7 +34,7 @@ def load_dict_by_type(dict_type):
     dict = {};
     os.chdir(sys.path[0]);
     dict_path = os.path.abspath('MachineLearningAnalysisWeb/dictionary/data/'+dict_mapping[dict_type]);
-    if dict_type < 4:
+    if dict_type != 5:
         for dirs, sub_dirs, files in os.walk(dict_path):
             for file in files:
                 score = 0
@@ -44,26 +45,24 @@ def load_dict_by_type(dict_type):
                     score = -1
 
                 dict.update(__load_words_from_file_with_given_score__(os.path.join(dict_path, file), score))
-    elif dict_type == 4:
-        dict = load_dalianligong_dict()
     else:
         dict = load_extreme_dict()
 
     return dict
 
-def read_xlsx_file(path, file_name):
-    book = xlrd.open_workbook(path + file_name)
-    sh = book.sheet_by_name("Sheet1")
-    list = []
-    for i in range(1, sh.nrows):
-        list.append(sh.row_values(i))
-    return list
-
-def load_dalianligong_dict():
-    os.chdir(sys.path[0]);
-    file_path = os.path.abspath('MachineLearningAnalysisWeb/dictionary/data/dict_dalianligong/SenDic.xlsx');
-    dalianligong_dict = read_xlsx_file(file_path)
-    return dalianligong_dict;
+# def read_xlsx_file(path, file_name):
+#     book = xlrd.open_workbook(path + file_name)
+#     sh = book.sheet_by_name("Sheet1")
+#     list = []
+#     for i in range(1, sh.nrows):
+#         list.append(sh.row_values(i))
+#     return list
+#
+# def load_dalianligong_dict():
+#     os.chdir(sys.path[0]);
+#     file_path = os.path.abspath('MachineLearningAnalysisWeb/dictionary/data/dict_dalianligong/SenDic.xlsx');
+#     dalianligong_dict = read_xlsx_file(file_path)
+#     return dalianligong_dict;
 
 def load_extreme_dict():
     os.chdir(sys.path[0]);
