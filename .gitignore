@@ -1,3 +1,2 @@
 .idea
-testData/pos
-testData/neg
+__pycache__

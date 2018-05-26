@@ -34,7 +34,7 @@ def load_dict_by_type(dict_type):
     dict = {};
     os.chdir(sys.path[0]);
     dict_path = os.path.abspath('MachineLearningAnalysisWeb/dictionary/data/'+dict_mapping[dict_type]);
-    if dict_type != 5:
+    if dict_type != 4:
         for dirs, sub_dirs, files in os.walk(dict_path):
             for file in files:
                 score = 0
