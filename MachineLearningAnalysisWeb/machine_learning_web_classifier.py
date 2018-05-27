@@ -1,0 +1,91 @@
+# python3
+# -*- coding: utf-8 -*-
+# @Time      2018/5/27 10:48
+# @Author    Alina Wang
+# @Email     recall52@163.com
+# @Software: PyCharm
+
+import pickle
+from MachineLearningAnalysisWeb.Analysis import create_word_bigram_scores, find_best_words, load_data, best_word_features, pos_features, neg_features, cut_data
+from nltk.classify.scikitlearn import SklearnClassifier
+from sklearn.linear_model import LogisticRegression
+import numpy
+import re
+import jieba
+import os
+import sys
+from MachineLearningAnalysisWeb.segementation_utils import get_simple_sentences_gen, get_jieba_word_list
+
+
+def store_classifier():
+    word_scores = create_word_bigram_scores()
+    best_words = find_best_words(word_scores, 9500)
+
+    load_data()
+
+    posFeatures = pos_features(best_word_features, best_words)
+    negFeatures = neg_features(best_word_features, best_words)
+
+    train, test = cut_data(posFeatures, negFeatures)
+
+    LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
+    LogisticRegression_classifier.train(train)
+    pickle.dump(LogisticRegression_classifier, open('classifier.pkl', 'wb'))
+
+def text_segment(text):
+    words= [];
+    text = re.sub("[\s+\.\!\/_,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）～]+", "", text)
+    list = jieba.cut(text, cut_all=False)
+    words.append(set(list))
+    return words
+
+def get_ml_analysis(text):
+    text_word_list = [];
+    text_word_list.append(text_segment(text))
+    def extract_features(data):
+        feat = []
+        word_scores = create_word_bigram_scores()
+        best_words = find_best_words(word_scores, 9500)
+        for i in data:
+            feat.append(best_word_features(i, best_words))
+            return feat
+        
+    os.chdir(sys.path[0]);
+    classifier_pkl_path = os.path.abspath('MachineLearningAnalysisWeb/classifier.pkl')
+    moto_features = extract_features(text_word_list)
+    clf = pickle.load(open(classifier_pkl_path, 'rb'))
+    pred = clf.classify_many(moto_features)
+    result = ''.join(pred)
+    return result
+        
+# 使用分类器分类，给出概率值
+# 把文本变成特征表示
+def transfer_text_to_moto():
+    moto = pickle.load(open('neg_review.pkl', 'rb'))  # 载入文本数据
+        
+    def extract_features(data):
+        feat = []
+        word_scores = create_word_bigram_scores()
+        best_words = find_best_words(word_scores, 9500)
+        for i in data:
+            feat.append(best_word_features(i, best_words))
+            return feat
+
+    moto_features = extract_features(moto)  # 把文本转化为特征表示的形式
+    return moto_features
+
+    # 对文本进行分类，给出概率值
+def application():
+    clf = pickle.load(open('classifier.pkl', 'rb'))  # 载入分类器
+
+    pred = clf.classify_many(transfer_text_to_moto())  # 该方法是计算分类概率值的
+    p_file = open('moto_ml_score.txt', 'w')  # 把结果写入文档
+    for i in pred:
+        p_file.write(i + '\n')
+    p_file.close()
+
+if __name__ == '__main__':
+    # store_classifier()
+    application()
+    text='服务态度极好，前台接待有礼貌；大堂副理很体贴，不错'
+    get_ml_analysis(text);

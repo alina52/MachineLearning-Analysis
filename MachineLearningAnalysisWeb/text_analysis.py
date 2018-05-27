@@ -8,6 +8,7 @@ from MachineLearningAnalysisWeb.dictionary.dict_utils import *
 from django.shortcuts import render
 from django.views.decorators import csrf
 from MachineLearningAnalysisWeb.segementation_utils import *
+from MachineLearningAnalysisWeb.machine_learning_web_classifier import get_ml_analysis
 from functools import reduce
 
 def text_analysis_form(request):
@@ -22,7 +23,10 @@ def text_analysis(request):
         dict = all_type_word_dict[int(dict_type_arg)];
         text_doc = request.POST['text']
         score = __caculate_text_score__(text_doc, dict)
-        ctx['result'] = score
+        ml_result = get_ml_analysis(text_doc)
+        ctx['score'] = score
+        ctx['ml_result'] = ml_result
+        
     return render(request, 'text_analysis_result.html', ctx)
 
 def __fill_with_word_info__(word, k, s, p = None):
@@ -34,7 +38,7 @@ def __fill_with_word_info__(word, k, s, p = None):
     return word_info
 
 def __getScore__(dict, word):
-    return dict.get(word, 0)
+    return float(dict.get(word, 0))
 
 def __get_word_detail_info__(word, word_kind, word_dict):
     word_info = {};
@@ -46,9 +50,9 @@ def __get_word_detail_info__(word, word_kind, word_dict):
             word_info = __fill_with_word_info__(word, word_kind, score, None)
         else:
             score = __getScore__(word_dict, word)
-            if score >0:
+            if score > 0.0:
                 word_info = __fill_with_word_info__(word, word_kind, score, 'pos')
-            elif score < 0:
+            elif score < 0.0:
                 word_info = __fill_with_word_info__(word, word_kind, score, 'neg')
             else:
                 word_info = __fill_with_word_info__(word, word_kind, score)

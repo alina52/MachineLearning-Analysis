@@ -8,7 +8,7 @@ import os
 import sys
 import xlrd
 
-dict_mapping = {1: "dict_zhiwang", 2: "dict_tsinghua", 3: "dict_ntusd", 4: "dict_dalianligong", 5: "dict_extreme"}
+dict_mapping = {1: "dict_zhiwang", 2: "dict_tsinghua", 3: "dict_ntusd", 4: "dict_dalianligong"}
 all_type_word_dict = {}
 extent_dict = {}
 deny_word_set = set()
