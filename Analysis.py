@@ -141,21 +141,21 @@ def find_best_words(word_scores, number):
     return best_words
 
     # 把选出的词作为特征，也就是信息量丰富的特征
-# def best_word_features(words, best_words):
-#     return dict([(word, True) for word in words if word in best_words])
-
 def best_word_features(words, best_words):
-    ret = dict()
-    for word in words:
-        for bestWord in best_words:
-            if word == bestWord[0]:
-                if bestWord[1] in words:
-                    ret[bestWord] = True
-            elif word == bestWord[1]:
-                if bestWord[0] in words:
-                    ret[bestWord] = True
-    return ret
     return dict([(word, True) for word in words if word in best_words])
+
+# def best_word_features(words, best_words):
+#     ret = dict()
+#     for word in words:
+#         for bestWord in best_words:
+#             if word == bestWord[0]:
+#                 if bestWord[1] in words:
+#                     ret[bestWord] = True
+#             elif word == bestWord[1]:
+#                 if bestWord[0] in words:
+#                     ret[bestWord] = True
+#     return ret
+#     return dict([(word, True) for word in words if word in best_words])
 
 pos_review = []  # 积极数据
 neg_review = []  # 消极数据

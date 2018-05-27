@@ -27,7 +27,8 @@ from sklearn.metrics import confusion_matrix, precision_recall_curve
 from sklearn.metrics import recall_score
 from sklearn.metrics import precision_recall_fscore_support
 import sys
-sys.setrecursionlimit(2000)
+
+from nltk.classify.scikitlearn import SklearnClassifier
 
 # 检验不同分类器和不同的特征选择的结果
 # 使用训练集训练分类器
@@ -152,43 +153,46 @@ def compare_dictionary_classifier():
 
 
 
-# def store_classifier():
-#     word_scores = create_word_bigram_scores()
-#     best_words = find_best_words(word_scores, 1400)
-#
-#     posFeatures = pos_features(best_word_features)
-#     negFeatures = neg_features(best_word_features)
-#
-#     trainSet = posFeatures + negFeatures
-#
-#     MultinomialNB_classifier = SklearnClassifier(MultinomialNB())
-#     MultinomialNB_classifier.train(trainSet)
-#     pickle.dump(MultinomialNB_classifier, open('classifier.pkl', 'wb'))
-#
-# # 使用分类器分类，给出概率值
-# # 把文本变成特征表示
-# def transfer_text_to_moto():
-#     moto = pickle.load(open('moto_senti_seg.pkl', 'rb'))  # 载入文本数据
-#
-#     def extract_features(data):
-#         feat = []
-#         for i in data:
-#             feat.append(best_word_features(i))
-#         return feat
-#
-#     moto_features = extract_features(moto)  # 把文本转化为特征表示的形式
-#     return moto_features
-#
-#     # 对文本进行分类，给出概率值
-# def application():
-#     clf = pickle.load(open('classifier.pkl', 'rb'))  # 载入分类器
-#
-#     pred = clf.batch_prob_classify(transfer_text_to_moto())  # 该方法是计算分类概率值的
-#     p_file = open('moto_ml_score.txt', 'w')  # 把结果写入文档
-#     for i in pred:
-#         p_file.write(str(i.prob('pos')) + ' ' + str(i.prob('neg')) + '\n')
-#     p_file.close()
+def store_classifier():
+    word_scores = create_word_bigram_scores()
+    best_words = find_best_words(word_scores, 9500)
+
+    load_data()
+
+    posFeatures = pos_features(best_word_features, best_words)
+    negFeatures = neg_features(best_word_features, best_words)
+
+    train, test = cut_data(posFeatures, negFeatures)
+
+    LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
+    LogisticRegression_classifier.train(train)
+    pickle.dump(LogisticRegression_classifier, open('classifier.pkl', 'wb'))
+
+# 使用分类器分类，给出概率值
+# 把文本变成特征表示
+def transfer_text_to_moto():
+    moto = pickle.load(open('moto_senti_seg.pkl', 'rb'))  # 载入文本数据
+
+    def extract_features(data):
+        feat = []
+        for i in data:
+            feat.append(best_word_features(i))
+        return feat
+
+    moto_features = extract_features(moto)  # 把文本转化为特征表示的形式
+    return moto_features
+
+    # 对文本进行分类，给出概率值
+def application():
+    clf = pickle.load(open('classifier.pkl', 'rb'))  # 载入分类器
+
+    pred = clf.batch_prob_classify(transfer_text_to_moto())  # 该方法是计算分类概率值的
+    p_file = open('moto_ml_score.txt', 'w')  # 把结果写入文档
+    for i in pred:
+        p_file.write(str(i.prob('pos')) + ' ' + str(i.prob('neg')) + '\n')
+    p_file.close()
 
 if __name__ == '__main__':
     # compare_machine_learning_classifier()
-    compare_dictionary_classifier()
+    # compare_dictionary_classifier()
+    store_classifier()
