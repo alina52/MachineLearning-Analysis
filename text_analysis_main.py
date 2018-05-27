@@ -167,4 +167,4 @@ def countResult():
     print('prcessed '+ str(processed_neg_file_count) +' neg files, got '+str(pos_score_for_neg_input_count)+' files has pos score')
 
 # if __name__ == '__main__':
-#     countResult()
+#     # countResult()
