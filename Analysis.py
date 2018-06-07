@@ -3,7 +3,6 @@ import itertools
 import nltk
 import sklearn
 from nltk.probability import FreqDist, ConditionalFreqDist
-from nltk.classify.scikitlearn import SklearnClassifier
 from nltk.collocations import BigramCollocationFinder
 from nltk.metrics import BigramAssocMeasures
 
@@ -54,9 +53,9 @@ def create_word_scores():
 
     word_scores = {}
     for word, freq in word_fd.items():
-        # 计算积极词的卡方统计量，这里也可以计算互信息等其它统计量
+        # 计算积极词的卡方统计量
         pos_score = BigramAssocMeasures.chi_sq(cond_word_fd['pos'][word], (freq, pos_word_count), total_word_count)
-        # 计算消极词的卡方统计量，这里也可以计算互信息等其它统计量
+        # 计算消极词的卡方统计量
         neg_score = BigramAssocMeasures.chi_sq(cond_word_fd['neg'][word], (freq, neg_word_count), total_word_count)
         # 一个词的信息量等于积极卡方统计量加上消极卡方统计量
         word_scores[word] = pos_score + neg_score
@@ -142,6 +141,7 @@ def find_best_words(word_scores, number):
 
     # 把选出的词作为特征，也就是信息量丰富的特征
 def best_word_features(words, best_words):
+    ret = dict()
     return dict([(word, True) for word in words if word in best_words])
 
 # def best_word_features(words, best_words):

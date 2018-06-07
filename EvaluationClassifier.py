@@ -116,20 +116,20 @@ def dictionary_evaluate(tp, tn, fp, fn):
 
 def compare_machine_learning_classifier():
     # word_scores_1 = create_word_scores()
-    word_scores_2 = create_bigram_scores()
-    # word_scores_3 = create_word_bigram_scores()
-    for k in np.arange(1000, 11000, 1000):
-        # best_words_1 = find_best_words(word_scores_1, k)
-        best_words_2 = find_best_words(word_scores_2,k)
-        # best_words_3 = find_best_words(word_scores_3, 8500)
-        load_data()
-        posFeatures = pos_features(best_word_features, best_words_2)  # 使用词和双词搭配作为特征
-        negFeatures = neg_features(best_word_features, best_words_2)
-        train, test = cut_data(posFeatures, negFeatures)
-        test_target, pred = predict(NuSVC(), train, test)
+    # word_scores_2 = create_bigram_scores()
+    word_scores_3 = create_word_bigram_scores()
+    # for k in np.arange(1000, 11000, 1000):
+    # best_words_1 = find_best_words(word_scores_1, 2000)
+    # best_words_2 = find_best_words(word_scores_2,2000)
+    best_words_3 = find_best_words(word_scores_3, 2000)
+    load_data()
+    posFeatures = pos_features(best_word_features, best_words_3)  # 使用词和双词搭配作为特征
+    negFeatures = neg_features(best_word_features, best_words_3)
+    train, test = cut_data(posFeatures, negFeatures)
+    test_target, pred = predict(LogisticRegression(), train, test)
 
-        print(k)
-        accuracy(test_target, pred)
+    # print(k)
+    accuracy(test_target, pred)
 
     # machine_learning_evaluate(test_target, pred)
 
@@ -150,49 +150,6 @@ def compare_dictionary_classifier():
     dictionary_evaluate(tp, tn, fp, fn)
 
 
-
-
-
-def store_classifier():
-    word_scores = create_word_bigram_scores()
-    best_words = find_best_words(word_scores, 9500)
-
-    load_data()
-
-    posFeatures = pos_features(best_word_features, best_words)
-    negFeatures = neg_features(best_word_features, best_words)
-
-    train, test = cut_data(posFeatures, negFeatures)
-
-    LogisticRegression_classifier = SklearnClassifier(LogisticRegression())
-    LogisticRegression_classifier.train(train)
-    pickle.dump(LogisticRegression_classifier, open('classifier.pkl', 'wb'))
-
-# 使用分类器分类，给出概率值
-# 把文本变成特征表示
-def transfer_text_to_moto():
-    moto = pickle.load(open('moto_senti_seg.pkl', 'rb'))  # 载入文本数据
-
-    def extract_features(data):
-        feat = []
-        for i in data:
-            feat.append(best_word_features(i))
-        return feat
-
-    moto_features = extract_features(moto)  # 把文本转化为特征表示的形式
-    return moto_features
-
-    # 对文本进行分类，给出概率值
-def application():
-    clf = pickle.load(open('classifier.pkl', 'rb'))  # 载入分类器
-
-    pred = clf.batch_prob_classify(transfer_text_to_moto())  # 该方法是计算分类概率值的
-    p_file = open('moto_ml_score.txt', 'w')  # 把结果写入文档
-    for i in pred:
-        p_file.write(str(i.prob('pos')) + ' ' + str(i.prob('neg')) + '\n')
-    p_file.close()
-
 if __name__ == '__main__':
     # compare_machine_learning_classifier()
-    # compare_dictionary_classifier()
-    store_classifier()
+    compare_dictionary_classifier()

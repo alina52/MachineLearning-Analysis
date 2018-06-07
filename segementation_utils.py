@@ -19,14 +19,14 @@ def get_simple_sentences_gen(text):
     return simple_sentences_gen
 
 def __get_compound_sentences_gen__(str):
-    str = re.split('[。？！；.?!;“”．]', str)
+    str = re.split(r'[。？！；.?!;“”．]', str)
     for s in str:
         if s != ''and s!= ' ':
             yield s.strip()
 
 def __get_simple_sentences_gen__(compound_sentences):
     for s in compound_sentences:
-        s = re.split('[,，、（）\s]',s)
+        s = re.split(r'[,，、（）\s]',s)
         for str in s:
             if str != ' ' and str != '':
                 yield str.strip()
