@@ -2,22 +2,19 @@
 
 @author: Administrator
 '''
-from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from MachineLearningAnalysisWeb.dictionary.dict_utils import *
 from django.shortcuts import render
-from django.views.decorators import csrf
 from MachineLearningAnalysisWeb.segementation_utils import *
 from MachineLearningAnalysisWeb.machine_learning_web_classifier import get_ml_analysis
 from functools import reduce
 
 def text_analysis_form(request):
-    
+
     return render_to_response('text_analysis_form.html')
 
 def text_analysis(request):
     ctx ={}
-    dict = all_type_word_dict[1];
     if request.POST:
         dict_type_arg = request.POST['dict_type']
         dict = all_type_word_dict[int(dict_type_arg)];
@@ -26,7 +23,7 @@ def text_analysis(request):
         ml_result = get_ml_analysis(text_doc)
         ctx['score'] = score
         ctx['ml_result'] = ml_result
-        
+
     return render(request, 'text_analysis_result.html', ctx)
 
 def __fill_with_word_info__(word, k, s, p = None):
@@ -66,7 +63,7 @@ def __caculate_score_of_simple_sentence__(stack = [], ExtInNoAndSen = False):
         return reduce(lambda item1, item2: item1 * item2, stack) * -0.5
     else:
         return reduce(lambda item1, item2: item1 * item2, stack)
-    
+
 def get_simple_sentence_score(word_list=[{}]):
     if len(word_list) > 0:
         stack = []
