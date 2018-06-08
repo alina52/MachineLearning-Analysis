@@ -8,23 +8,49 @@ from django.shortcuts import render
 from MachineLearningAnalysisWeb.segementation_utils import *
 from MachineLearningAnalysisWeb.machine_learning_web_classifier import get_ml_analysis
 from functools import reduce
+from django.http import HttpResponse, HttpResponseRedirect
 
-def text_analysis_form(request):
+def redirect_to_index(request):
+    return HttpResponseRedirect('/index')
 
-    return render_to_response('text_analysis_form.html')
 
-def text_analysis(request):
-    ctx ={}
-    if request.POST:
-        dict_type_arg = request.POST['dict_type']
-        dict = all_type_word_dict[int(dict_type_arg)];
-        text_doc = request.POST['text']
-        score = __caculate_text_score__(text_doc, dict)
+def index(request):
+    return render(request, 'index.html', {})
+
+
+def calculate_accuracy(request):
+    text_doc = request.POST['text']
+    dict_type_arg = request.POST['dict_type']
+    dict = all_type_word_dict[int(dict_type_arg)];
+
+    if type == 'NLP':
         ml_result = get_ml_analysis(text_doc)
-        ctx['score'] = score
-        ctx['ml_result'] = ml_result
+        return HttpResponse(ml_result)
+    elif type == 'DIC':
+        score = __caculate_text_score__(text_doc, dict)
+        return HttpResponse(score)
 
-    return render(request, 'text_analysis_result.html', ctx)
+
+def dict_result(request):
+    pass
+
+
+# def text_analysis_form(request):
+#
+#     return render_to_response('text_analysis_form.html')
+
+# def text_analysis(request):
+#     ctx ={}
+#     if request.POST:
+#         dict_type_arg = request.POST['dict_type']
+#         dict = all_type_word_dict[int(dict_type_arg)];
+#         text_doc = request.POST['text']
+#         score = __caculate_text_score__(text_doc, dict)
+#         ml_result = get_ml_analysis(text_doc)
+#         ctx['score'] = score
+#         ctx['ml_result'] = ml_result
+#
+#     return render(request, 'text_analysis_result.html', ctx)
 
 def __fill_with_word_info__(word, k, s, p = None):
     word_info = {};

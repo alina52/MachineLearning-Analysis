@@ -46,8 +46,3 @@ def get_ml_analysis(text):
     pred = predict(LogisticRegression(), train, text_word_list)
     return pred
 
-
-if __name__ == '__main__':
-
-    text='服务态度极不好，前台接待很差；房间很小，又脏'
-    get_ml_analysis(text);
