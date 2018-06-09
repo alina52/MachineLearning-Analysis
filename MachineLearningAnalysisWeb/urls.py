@@ -21,6 +21,9 @@ from MachineLearningAnalysisWeb.dictionary.dict_utils import load_dict
 load_dict()
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('index', index),
+    path('index/', index),
+    path('calculate/', calculate_accuracy, name='calculate'),
+    path('dict/', dict_result)
+    # path('text_analysis_form', text_analysis_form),
     # path('text_analysis', text_analysis)
 ]
