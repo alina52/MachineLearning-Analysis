@@ -136,6 +136,9 @@
             <div class="col-md-12" class="emotion-input-container">
                 <textarea class="emotion-input" id="emotion-input-0"></textarea>
             </div>
+            <div>
+                <button onclick="queryDICT()">提交</button>
+            </div>
         </div>
     </div>
 </section>
@@ -176,6 +179,9 @@
             </div>
             <div class="col-md-12" class="emotion-input-container">
                 <textarea class="emotion-input" id="emotion-input"></textarea>
+            </div>
+            <div>
+                <button onclick="queryNLP()">提交</button>
             </div>
         </div>
     </div>
@@ -258,10 +264,10 @@
     /**
      * Query and use method DIC
      */
-    function queryDIC() {
+    function queryDICT() {
         console.log('Your input:', $('#emotion-input-0').val());
         console.log('Dictionary type:', $('#dictionary-type').val());
-        $.get('../calculate?type=DIC&dic=' + $('#dictionary-type').val() + '&query=' + $('#emotion-input-0').val()).done(function (req) {
+        $.get('../calculate?type=DICT&dict=' + $('#dictionary-type').val() + '&query=' + $('#emotion-input-0').val()).done(function (req) {
             if (Number.parseFloat(req) > 0){
                 clearResultDic();
                 $('#dic-result').addClass('res-success');
@@ -278,19 +284,6 @@
         });
     }
 
-    /**
-     * Open recommend modal
-     */
-    function openRecommendModal() {
-        $('#recommendModal').modal();
-    }
-
-
-    $(document).ready(function () {
-        $('#emotion-input').keyup(_.debounce(queryNLP, 700));
-        $('#emotion-input-0').keyup(_.debounce(queryDIC, 700));
-        $('#dictionary-type').change(queryDIC);
-    })
 </script>
 
 </body>

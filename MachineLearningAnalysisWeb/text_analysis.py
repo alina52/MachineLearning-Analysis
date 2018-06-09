@@ -19,14 +19,14 @@ def index(request):
 
 
 def calculate_accuracy(request):
-    text_doc = request.POST['text']
-    dict_type_arg = request.POST['dict_type']
+    text_doc = request.GET['query']
+    dict_type_arg = request.GET['dict']
     dict = all_type_word_dict[int(dict_type_arg)];
 
     if type == 'NLP':
         ml_result = get_ml_analysis(text_doc)
         return HttpResponse(ml_result)
-    elif type == 'DIC':
+    elif type == 'DICT':
         score = __caculate_text_score__(text_doc, dict)
         return HttpResponse(score)
 
