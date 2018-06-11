@@ -20,13 +20,13 @@ def index(request):
 
 def calculate_accuracy(request):
     text_doc = request.GET['query']
-    dict_type_arg = request.GET['dict']
-    dict = all_type_word_dict[int(dict_type_arg)];
-
+    type = request.GET['type']
     if type == 'NLP':
         ml_result = get_ml_analysis(text_doc)
         return HttpResponse(ml_result)
     elif type == 'DICT':
+        dict_type_arg = request.GET['dict']
+        dict = all_type_word_dict[int(dict_type_arg)];
         score = __caculate_text_score__(text_doc, dict)
         return HttpResponse(score)
 
@@ -34,23 +34,6 @@ def calculate_accuracy(request):
 def dict_result(request):
     pass
 
-
-# def text_analysis_form(request):
-#
-#     return render_to_response('text_analysis_form.html')
-
-# def text_analysis(request):
-#     ctx ={}
-#     if request.POST:
-#         dict_type_arg = request.POST['dict_type']
-#         dict = all_type_word_dict[int(dict_type_arg)];
-#         text_doc = request.POST['text']
-#         score = __caculate_text_score__(text_doc, dict)
-#         ml_result = get_ml_analysis(text_doc)
-#         ctx['score'] = score
-#         ctx['ml_result'] = ml_result
-#
-#     return render(request, 'text_analysis_result.html', ctx)
 
 def __fill_with_word_info__(word, k, s, p = None):
     word_info = {};
