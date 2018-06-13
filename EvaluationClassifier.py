@@ -14,17 +14,12 @@ from text_analysis_main import countResult
 from sklearn.svm import SVC, LinearSVC, NuSVC
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn import tree
 
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import LabelEncoder
 
 from sklearn.metrics import accuracy_score
-from sklearn.metrics import confusion_matrix, precision_recall_curve
-from sklearn.metrics import recall_score
+from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_fscore_support
 import sys
 
@@ -81,20 +76,6 @@ def confustion_matrix(test_target, pred):
     plt.xlabel('Predicted label')
     plt.show()
 
-def precision_recall_curve(test_target, pred):
-    precision, recall, th = precision_recall_curve(test_target, pred)
-    plt.step(recall, precision, color='b', alpha=0.2,
-             where='post')
-    plt.fill_between(recall, precision, step='post', alpha=0.2,
-                     color='b')
-
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.ylim([0.0, 1.0])
-    plt.xlim([0.0, 1.0])
-    plt.title('2-class Precision-Recall curve')
-    plt.show()
-
 def machine_learning_evaluate(test_target, pred):
     targets = list(set(test_target))
     precision, recall, f, support = precision_recall_fscore_support(test_target, pred, average="binary")
@@ -131,7 +112,7 @@ def compare_machine_learning_classifier():
     # print(k)
     accuracy(test_target, pred)
 
-    # machine_learning_evaluate(test_target, pred)
+    machine_learning_evaluate(test_target, pred)
 
         # print('BernoulliNB`s accuracy is %f' % accuracy(test_target, pred))
         # print('MultinomialNB`s accuracy is %f' % accuracy(test_target, pred))
